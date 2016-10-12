@@ -1,6 +1,7 @@
 package xiaoyuz.com.readingassistant.utils;
 
 import android.content.Context;
+import android.view.WindowManager;
 
 import xiaoyuz.com.readingassistant.cache.ACache;
 
@@ -11,6 +12,7 @@ public class App {
 
     private static Context sAppContext;
     private static ACache sACache;
+    private static WindowManager.LayoutParams sWindowParams;
 
     public static void initialize(Context context) {
         sAppContext = context;
@@ -29,5 +31,12 @@ public class App {
             sACache = ACache.get(getContext());
         }
         return sACache;
+    }
+
+    public static WindowManager.LayoutParams getWindowParams() {
+        if (sWindowParams == null) {
+            sWindowParams = new WindowManager.LayoutParams();
+        }
+        return sWindowParams;
     }
 }

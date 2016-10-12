@@ -23,6 +23,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import xiaoyuz.com.readingassistant.utils.BitmapUtils;
+
 public class ACache {
 
     private static final String DEFAULT_CACHE_NAME = "ACache";
@@ -95,7 +97,7 @@ public class ACache {
     }
 
     public void put(String key, String value, int saveTime) {
-        put(key, Utils.newStringWithDateInfo(saveTime, value));
+        put(key, CacheUtils.newStringWithDateInfo(saveTime, value));
     }
 
     public String getAsString(String key) {
@@ -111,8 +113,8 @@ public class ACache {
             while ((currentLine = in.readLine()) != null) {
                 readString += currentLine;
             }
-            if (!Utils.isDue(readString)) {
-                return Utils.clearDateInfo(readString);
+            if (!CacheUtils.isDue(readString)) {
+                return CacheUtils.clearDateInfo(readString);
             } else {
                 removeFile = true;
                 return null;
@@ -193,7 +195,7 @@ public class ACache {
     }
 
     public void put(String key, byte[] value, int saveTime) {
-        put(key, Utils.newByteArrayWithDateInfo(saveTime, value));
+        put(key, CacheUtils.newByteArrayWithDateInfo(saveTime, value));
     }
 
     public byte[] getAsBinary(String key) {
@@ -206,8 +208,8 @@ public class ACache {
             RAFile = new RandomAccessFile(file, "r");
             byte[] byteArray = new byte[(int) RAFile.length()];
             RAFile.read(byteArray);
-            if (!Utils.isDue(byteArray)) {
-                return Utils.clearDateInfo(byteArray);
+            if (!CacheUtils.isDue(byteArray)) {
+                return CacheUtils.clearDateInfo(byteArray);
             } else {
                 removeFile = true;
                 return null;
@@ -288,33 +290,33 @@ public class ACache {
     }
 
     public void put(String key, Bitmap value) {
-        put(key, Utils.Bitmap2Bytes(value));
+        put(key, BitmapUtils.Bitmap2Bytes(value));
     }
 
     public void put(String key, Bitmap value, int saveTime) {
-        put(key, Utils.Bitmap2Bytes(value), saveTime);
+        put(key, BitmapUtils.Bitmap2Bytes(value), saveTime);
     }
 
     public Bitmap getAsBitmap(String key) {
         if (getAsBinary(key) == null) {
             return null;
         }
-        return Utils.Bytes2Bimap(getAsBinary(key));
+        return BitmapUtils.Bytes2Bimap(getAsBinary(key));
     }
 
     public void put(String key, Drawable value) {
-        put(key, Utils.drawable2Bitmap(value));
+        put(key, BitmapUtils.drawable2Bitmap(value));
     }
 
     public void put(String key, Drawable value, int saveTime) {
-        put(key, Utils.drawable2Bitmap(value), saveTime);
+        put(key, BitmapUtils.drawable2Bitmap(value), saveTime);
     }
 
     public Drawable getAsDrawable(String key) {
         if (getAsBinary(key) == null) {
             return null;
         }
-        return Utils.bitmap2Drawable(Utils.Bytes2Bimap(getAsBinary(key)));
+        return BitmapUtils.bitmap2Drawable(BitmapUtils.Bytes2Bimap(getAsBinary(key)));
     }
 
     public File file(String key) {

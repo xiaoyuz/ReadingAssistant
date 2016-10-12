@@ -1,6 +1,7 @@
 package xiaoyuz.com.readingassistant.engine;
 
 import android.app.Application;
+import android.view.WindowManager;
 
 import xiaoyuz.com.readingassistant.utils.App;
 
@@ -9,9 +10,15 @@ import xiaoyuz.com.readingassistant.utils.App;
  */
 public class MainApplication extends Application {
 
+    private WindowManager.LayoutParams mWindowParams = new WindowManager.LayoutParams();
+
     @Override
     public void onCreate() {
         super.onCreate();
         App.initialize(this);
+    }
+
+    public WindowManager.LayoutParams getWindowParams() {
+        return mWindowParams;
     }
 }

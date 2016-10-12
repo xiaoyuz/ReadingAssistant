@@ -1,6 +1,9 @@
 package xiaoyuz.com.readingassistant.activity;
 
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -14,13 +17,17 @@ import android.view.MenuItem;
 
 import xiaoyuz.com.readingassistant.R;
 import xiaoyuz.com.readingassistant.base.BaseActivity;
+import xiaoyuz.com.readingassistant.service.AssistantService;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final int PERMISSION_CHECK_RESULT_CODE = 1;
+    private Intent mOpenAssistantIntent;
+
     @Override
     protected void initVariables() {
-
+        mOpenAssistantIntent = new Intent(MainActivity.this, AssistantService.class);
     }
 
     @Override
@@ -35,6 +42,7 @@ public class MainActivity extends BaseActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                permission();
             }
         });
 
@@ -62,6 +70,12 @@ public class MainActivity extends BaseActivity
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(mOpenAssistantIntent);
     }
 
     @Override
@@ -109,5 +123,29 @@ public class MainActivity extends BaseActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void permission(){
+        if (Build.VERSION.SDK_INT >= 23) {
+            if(!Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                startActivityForResult(intent, PERMISSION_CHECK_RESULT_CODE);
+                return;
+            } else {
+                startService(new Intent(MainActivity.this, AssistantService.class));
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (resultCode) {
+            case PERMISSION_CHECK_RESULT_CODE:
+                startService(mOpenAssistantIntent);
+                break;
+            default:
+                break;
+        }
     }
 }
