@@ -23,11 +23,12 @@ public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int PERMISSION_CHECK_RESULT_CODE = 1;
-    private Intent mOpenAssistantIntent;
+    private Intent mAssistantIntent;
+    private boolean mAssistantActivited;
 
     @Override
     protected void initVariables() {
-        mOpenAssistantIntent = new Intent(MainActivity.this, AssistantService.class);
+        mAssistantIntent = new Intent(MainActivity.this, AssistantService.class);
     }
 
     @Override
@@ -42,7 +43,12 @@ public class MainActivity extends BaseActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                permission();
+                if (mAssistantActivited) {
+                    closeAssistant();
+                } else {
+                    openAssistant();
+                }
+                mAssistantActivited = !mAssistantActivited;
             }
         });
 
@@ -75,7 +81,7 @@ public class MainActivity extends BaseActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopService(mOpenAssistantIntent);
+        closeAssistant();
     }
 
     @Override
@@ -125,16 +131,20 @@ public class MainActivity extends BaseActivity
         return true;
     }
 
-    public void permission(){
+    private void openAssistant(){
         if (Build.VERSION.SDK_INT >= 23) {
             if(!Settings.canDrawOverlays(this)) {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
                 startActivityForResult(intent, PERMISSION_CHECK_RESULT_CODE);
                 return;
             } else {
-                startService(new Intent(MainActivity.this, AssistantService.class));
+                startService(mAssistantIntent);
             }
         }
+    }
+
+    private void closeAssistant() {
+        stopService(mAssistantIntent);
     }
 
     @Override
@@ -142,7 +152,7 @@ public class MainActivity extends BaseActivity
         super.onActivityResult(requestCode, resultCode, data);
         switch (resultCode) {
             case PERMISSION_CHECK_RESULT_CODE:
-                startService(mOpenAssistantIntent);
+                startService(mAssistantIntent);
                 break;
             default:
                 break;
