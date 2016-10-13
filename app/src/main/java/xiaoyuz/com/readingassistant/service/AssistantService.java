@@ -3,12 +3,20 @@ package xiaoyuz.com.readingassistant.service;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import xiaoyuz.com.readingassistant.RxScreenshotDetector;
+import xiaoyuz.com.readingassistant.listener.OnScreenshotListener;
 import xiaoyuz.com.readingassistant.ui.DraggableFrameLayout;
 import xiaoyuz.com.readingassistant.utils.App;
 
@@ -16,11 +24,14 @@ import xiaoyuz.com.readingassistant.utils.App;
  * Created by zhangxiaoyu on 16-10-12.
  * This service running in background shall handle all reading assistance request.
  */
-public class AssistantService extends Service {
+public class AssistantService extends Service implements OnScreenshotListener {
 
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mParams;
     private FrameLayout mFloatLayout;
+
+    private Observable mScreenshotObservable;
+    private Subscriber<String> mScreenshotSubscriber;
 
     @Override
     public void onCreate() {
@@ -28,6 +39,26 @@ public class AssistantService extends Service {
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mParams = App.getWindowParams();
         mFloatLayout = new DraggableFrameLayout(this);
+        mScreenshotObservable = RxScreenshotDetector.start(getApplicationContext())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+        mScreenshotSubscriber = new Subscriber<String>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onNext(String path) {
+                Toast.makeText(App.getContext(), path, Toast.LENGTH_SHORT).show();
+            }
+        };
+        mScreenshotObservable.subscribe(mScreenshotSubscriber);
     }
 
     @Nullable
@@ -46,6 +77,13 @@ public class AssistantService extends Service {
     public void onDestroy() {
         super.onDestroy();
         mWindowManager.removeView(mFloatLayout);
+        mScreenshotSubscriber.unsubscribe();
+    }
+
+    @Override
+    public void onScreenshotTaken(Uri uri) {
+        Toast.makeText(this, uri.getPath(), Toast.LENGTH_SHORT).show();
+
     }
 
     public void showFlowWindow() {
