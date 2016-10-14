@@ -27,9 +27,12 @@ public class DraggableFrameLayout extends FrameLayout {
             .getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
     private WindowManager.LayoutParams windowManagerParams = App.getWindowParams();
 
+    private CornerNumberTextView mNumberTextView;
+
     public DraggableFrameLayout(Context context) {
         super(context);
         View view = LayoutInflater.from(context).inflate(R.layout.assistant_float_window, null);
+        mNumberTextView = (CornerNumberTextView) view.findViewById(R.id.notify_num_tv);
         this.addView(view);
     }
 
@@ -66,6 +69,14 @@ public class DraggableFrameLayout extends FrameLayout {
     @Override
     public void setOnClickListener(OnClickListener l) {
         this.mClickListener = l;
+    }
+
+    public void increaseNotifyNum() {
+        mNumberTextView.increaseNum();
+    }
+
+    public void clearNotifyNum() {
+        mNumberTextView.clearNum();
     }
 
     private void updateViewPosition() {

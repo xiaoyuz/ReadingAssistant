@@ -8,7 +8,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.view.Gravity;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import rx.Observable;
@@ -28,7 +27,7 @@ public class AssistantService extends Service implements OnScreenshotListener {
 
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mParams;
-    private FrameLayout mFloatLayout;
+    private DraggableFrameLayout mFloatLayout;
 
     private Observable mScreenshotObservable;
     private Subscriber<String> mScreenshotSubscriber;
@@ -55,6 +54,8 @@ public class AssistantService extends Service implements OnScreenshotListener {
 
             @Override
             public void onNext(String path) {
+                mFloatLayout.increaseNotifyNum();
+                // TODO: handle event of screenshot.
                 Toast.makeText(App.getContext(), path, Toast.LENGTH_SHORT).show();
             }
         };
@@ -86,6 +87,7 @@ public class AssistantService extends Service implements OnScreenshotListener {
 
     }
 
+    // FIXME: Fix the float window size.
     public void showFlowWindow() {
         mParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
         mParams.format = PixelFormat.RGBA_8888;
