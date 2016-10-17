@@ -68,7 +68,7 @@ public class MainActivity extends BaseActivity
         FragmentManager fm = getFragmentManager();
         FragmentTransaction transaction = fm.beginTransaction();
         NoteListFragment noteListFragment = new NoteListFragment();
-        transaction.replace(R.id.container, noteListFragment);
+        transaction.replace(R.id.fragment_container, noteListFragment);
         transaction.commit();
     }
 
