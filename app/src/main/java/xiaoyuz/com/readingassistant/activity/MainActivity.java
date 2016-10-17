@@ -1,5 +1,7 @@
 package xiaoyuz.com.readingassistant.activity;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +19,7 @@ import android.view.MenuItem;
 
 import xiaoyuz.com.readingassistant.R;
 import xiaoyuz.com.readingassistant.base.BaseActivity;
+import xiaoyuz.com.readingassistant.fragment.NoteListFragment;
 import xiaoyuz.com.readingassistant.service.AssistantService;
 
 public class MainActivity extends BaseActivity
@@ -61,6 +64,12 @@ public class MainActivity extends BaseActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        NoteListFragment noteListFragment = new NoteListFragment();
+        transaction.replace(R.id.container, noteListFragment);
+        transaction.commit();
     }
 
     @Override
