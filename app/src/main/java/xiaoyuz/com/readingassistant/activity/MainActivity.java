@@ -32,10 +32,10 @@ public class MainActivity extends BaseActivity
     private boolean mAssistantActivited;
 
     private FragmentManager mFragmentManager;
-
     private LazyInstance<DefaultFragment> mLazyDefaultFragment;
-
     private LazyInstance<NoteListFragment> mLazyNoteListFragment;
+
+    private NavigationView mNavigationView;
 
     @Override
     protected void initVariables() {
@@ -85,8 +85,10 @@ public class MainActivity extends BaseActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        mNavigationView.setNavigationItemSelectedListener(this);
+        // select first item at beginning.
+        mNavigationView.getMenu().getItem(0).setChecked(true);
 
         replaceFragment(mLazyDefaultFragment.get());
     }
@@ -140,7 +142,7 @@ public class MainActivity extends BaseActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         switch (id) {
-            case R.id.nav_camera:
+            case R.id.nav_gallery:
                 replaceFragment(mLazyNoteListFragment.get());
                 break;
             default:
