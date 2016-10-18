@@ -88,9 +88,8 @@ public class MainActivity extends BaseActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
         // select first item at beginning.
-        mNavigationView.getMenu().getItem(0).setChecked(true);
+        onNavigationItemSelected(mNavigationView.getMenu().getItem(0).setChecked(true));
 
-        replaceFragment(mLazyDefaultFragment.get());
     }
 
     @Override
