@@ -16,7 +16,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import xiaoyuz.com.readingassistant.RxScreenshotDetector;
 import xiaoyuz.com.readingassistant.listener.OnScreenshotListener;
-import xiaoyuz.com.readingassistant.ui.DraggableFrameLayout;
+import xiaoyuz.com.readingassistant.ui.widget.DraggableFrameLayout;
 import xiaoyuz.com.readingassistant.utils.App;
 
 /**

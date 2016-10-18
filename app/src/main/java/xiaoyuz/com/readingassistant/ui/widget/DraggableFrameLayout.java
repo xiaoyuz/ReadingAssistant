@@ -1,4 +1,4 @@
-package xiaoyuz.com.readingassistant.ui;
+package xiaoyuz.com.readingassistant.ui.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
