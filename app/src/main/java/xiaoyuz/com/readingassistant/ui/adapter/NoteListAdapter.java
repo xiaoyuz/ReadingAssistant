@@ -8,10 +8,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 import xiaoyuz.com.readingassistant.R;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
+import xiaoyuz.com.readingassistant.utils.App;
 
 /**
  * Created by zhangxiaoyu on 16-10-18.
@@ -25,12 +28,13 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteLi
 
         public NoteListViewHolder(View view){
             super(view);
-            mImageView = (ImageView) view.findViewById(R.id.imageView);
-            mTextView = (TextView) view.findViewById(R.id.textView);
+            mImageView = (ImageView) view.findViewById(R.id.image);
+            mTextView = (TextView) view.findViewById(R.id.time);
         }
     }
 
     private List<NoteRecord> mNoteRecordList;
+
 
     public NoteListAdapter(List<NoteRecord> noteRecordList) {
         mNoteRecordList = noteRecordList;
@@ -45,11 +49,17 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteLi
 
     @Override
     public void onBindViewHolder(NoteListViewHolder holder, int position) {
-//        holder.mTextView.setText(mNoteRecordList.get(position).getDate().toString());
+        holder.mTextView.setText(mNoteRecordList.get(position).getTime());
+        Glide.with(App.getContext())
+                .load(mNoteRecordList.get(position).getFilePath()).into(holder.mImageView);
     }
 
     @Override
     public int getItemCount() {
         return mNoteRecordList.size();
+    }
+
+    public void setNoteRecordList(List<NoteRecord> noteRecordList) {
+        mNoteRecordList = noteRecordList;
     }
 }

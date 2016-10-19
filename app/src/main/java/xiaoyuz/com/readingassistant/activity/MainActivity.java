@@ -70,6 +70,7 @@ public class MainActivity extends BaseActivity
                     }
                 });
         mEventHandler = new EventHandler();
+        EventDispatcher.register(mEventHandler);
     }
 
     @Override
@@ -104,9 +105,6 @@ public class MainActivity extends BaseActivity
         mNavigationView.setNavigationItemSelectedListener(this);
         // select first item at beginning.
         selectNavItem(0);
-
-        EventDispatcher.register(mEventHandler);
-
     }
 
     @Override

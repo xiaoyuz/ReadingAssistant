@@ -1,14 +1,21 @@
 package xiaoyuz.com.readingassistant.entity;
 
-import java.util.Date;
-
 /**
  * Created by zhangxiaoyu on 16-10-18.
  */
 public class NoteRecord {
 
     private String filePath;
-    private Date date;
+    private String time;
+
+    public NoteRecord() {
+
+    }
+
+    public NoteRecord(String filePath, String time) {
+        this.filePath = filePath;
+        this.time = time;
+    }
 
     public String getFilePath() {
         return filePath;
@@ -18,11 +25,11 @@ public class NoteRecord {
         this.filePath = filePath;
     }
 
-    public Date getDate() {
-        return date;
+    public String getTime() {
+        return time;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setTime(String time) {
+        this.time = time;
     }
 }

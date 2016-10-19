@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import java.util.Date;
+
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -18,7 +20,9 @@ import rx.schedulers.Schedulers;
 import xiaoyuz.com.readingassistant.EventDispatcher;
 import xiaoyuz.com.readingassistant.RxScreenshotDetector;
 import xiaoyuz.com.readingassistant.activity.MainActivity;
+import xiaoyuz.com.readingassistant.entity.NoteRecord;
 import xiaoyuz.com.readingassistant.event.FloatWindowClickEvent;
+import xiaoyuz.com.readingassistant.event.ScreenShotEvent;
 import xiaoyuz.com.readingassistant.listener.OnScreenshotListener;
 import xiaoyuz.com.readingassistant.ui.widget.DraggableFrameLayout;
 import xiaoyuz.com.readingassistant.utils.App;
@@ -59,8 +63,9 @@ public class AssistantService extends Service implements OnScreenshotListener {
             @Override
             public void onNext(String path) {
                 mFloatLayout.increaseNotifyNum();
-                // TODO: handle event of screenshot.
                 Toast.makeText(App.getContext(), path, Toast.LENGTH_SHORT).show();
+                EventDispatcher.post(new ScreenShotEvent(new NoteRecord(path,
+                        new Date().toString())));
             }
         };
         mScreenshotObservable.subscribe(mScreenshotSubscriber);

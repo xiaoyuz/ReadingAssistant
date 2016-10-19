@@ -7,13 +7,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.squareup.otto.Subscribe;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import xiaoyuz.com.readingassistant.EventDispatcher;
 import xiaoyuz.com.readingassistant.R;
 import xiaoyuz.com.readingassistant.base.BaseFragment;
+import xiaoyuz.com.readingassistant.db.SharePreferenceDB;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
+import xiaoyuz.com.readingassistant.event.ScreenShotEvent;
 import xiaoyuz.com.readingassistant.ui.adapter.NoteListAdapter;
 import xiaoyuz.com.readingassistant.utils.App;
 
@@ -22,14 +26,28 @@ import xiaoyuz.com.readingassistant.utils.App;
  */
 public class NoteListFragment extends BaseFragment {
 
+    private class EventHandler {
+
+        @Subscribe
+        public void onScreenShot(ScreenShotEvent event) {
+            SharePreferenceDB.addNoteRecord2List(event.getNoteRecord());
+            loadData();
+            mAdapter.setNoteRecordList(mNoteRecordList);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
     private RecyclerView mNoteListView;
     private List<NoteRecord> mNoteRecordList;
     private LinearLayoutManager mLayoutManager;
     private NoteListAdapter mAdapter;
+    private EventHandler mEventHandler;
 
     @Override
     protected void initVariables() {
         mNoteRecordList = new ArrayList<>();
+        mEventHandler = new EventHandler();
+        EventDispatcher.register(mEventHandler, EventDispatcher.Group.Main);
     }
 
     @Override
@@ -47,18 +65,12 @@ public class NoteListFragment extends BaseFragment {
 
     @Override
     protected void loadData() {
-        testData();
+        mNoteRecordList = SharePreferenceDB.getNotesList();
     }
 
-    /**
-     * Data set for test.
-     */
-    private void testData() {
-        for (int i = 0; i < 10; i++) {
-            NoteRecord noteRecord = new NoteRecord();
-            noteRecord.setDate(new Date());
-            noteRecord.setFilePath("abc");
-            mNoteRecordList.add(noteRecord);
-        }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventDispatcher.unregister(mEventHandler);
     }
 }
