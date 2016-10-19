@@ -1,8 +1,10 @@
 package xiaoyuz.com.readingassistant.utils;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.view.WindowManager;
 
+import xiaoyuz.com.readingassistant.base.LazyInstance;
 import xiaoyuz.com.readingassistant.cache.ACache;
 
 /**
@@ -11,8 +13,28 @@ import xiaoyuz.com.readingassistant.cache.ACache;
 public class App {
 
     private static Context sAppContext;
-    private static ACache sACache;
-    private static WindowManager.LayoutParams sWindowParams;
+    private static LazyInstance<ACache> sLazyACache =
+            new LazyInstance<>(new LazyInstance.InstanceCreator<ACache>() {
+                @Override
+                public ACache createInstance() {
+                    return ACache.get(getContext());
+                }
+            });
+    private static LazyInstance<WindowManager.LayoutParams> sLazyWindowParams =
+            new LazyInstance<>(new LazyInstance.InstanceCreator<WindowManager.LayoutParams>() {
+                @Override
+                public WindowManager.LayoutParams createInstance() {
+                    return new WindowManager.LayoutParams();
+                }
+            });
+    private static LazyInstance<ActivityManager> sLazyActivityManager =
+            new LazyInstance<>(new LazyInstance.InstanceCreator<ActivityManager>() {
+                @Override
+                public ActivityManager createInstance() {
+                    return (ActivityManager) sAppContext
+                            .getSystemService(Context.ACTIVITY_SERVICE);
+                }
+            });
 
     public static void initialize(Context context) {
         sAppContext = context;
@@ -27,16 +49,14 @@ public class App {
     }
 
     public static ACache getACache() {
-        if (sACache == null) {
-            sACache = ACache.get(getContext());
-        }
-        return sACache;
+        return sLazyACache.get();
     }
 
     public static WindowManager.LayoutParams getWindowParams() {
-        if (sWindowParams == null) {
-            sWindowParams = new WindowManager.LayoutParams();
-        }
-        return sWindowParams;
+        return sLazyWindowParams.get();
+    }
+
+    public static ActivityManager getActivityManager() {
+        return sLazyActivityManager.get();
     }
 }

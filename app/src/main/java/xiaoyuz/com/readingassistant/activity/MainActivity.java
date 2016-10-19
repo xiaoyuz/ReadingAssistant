@@ -16,10 +16,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.squareup.otto.Subscribe;
+
+import xiaoyuz.com.readingassistant.EventDispatcher;
 import xiaoyuz.com.readingassistant.R;
 import xiaoyuz.com.readingassistant.base.BaseActivity;
 import xiaoyuz.com.readingassistant.base.BaseFragment;
 import xiaoyuz.com.readingassistant.base.LazyInstance;
+import xiaoyuz.com.readingassistant.event.FloatWindowClickEvent;
 import xiaoyuz.com.readingassistant.fragment.DefaultFragment;
 import xiaoyuz.com.readingassistant.fragment.NoteListFragment;
 import xiaoyuz.com.readingassistant.service.AssistantService;
@@ -36,6 +40,16 @@ public class MainActivity extends BaseActivity
     private LazyInstance<NoteListFragment> mLazyNoteListFragment;
 
     private NavigationView mNavigationView;
+
+    private EventHandler mEventHandler;
+
+    private class EventHandler {
+
+        @Subscribe
+        public void onFloatWindowClick(FloatWindowClickEvent event) {
+            selectNavItem(1);
+        }
+    }
 
     @Override
     protected void initVariables() {
@@ -55,6 +69,7 @@ public class MainActivity extends BaseActivity
                         return new NoteListFragment();
                     }
                 });
+        mEventHandler = new EventHandler();
     }
 
     @Override
@@ -88,7 +103,9 @@ public class MainActivity extends BaseActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
         // select first item at beginning.
-        onNavigationItemSelected(mNavigationView.getMenu().getItem(0).setChecked(true));
+        selectNavItem(0);
+
+        EventDispatcher.register(mEventHandler);
 
     }
 
@@ -111,6 +128,7 @@ public class MainActivity extends BaseActivity
     protected void onDestroy() {
         super.onDestroy();
         closeAssistant();
+        EventDispatcher.unregister(mEventHandler);
     }
 
     @Override
@@ -187,8 +205,13 @@ public class MainActivity extends BaseActivity
         stopService(mAssistantIntent);
     }
 
+    private void selectNavItem(int pos) {
+        onNavigationItemSelected(mNavigationView.getMenu().getItem(pos).setChecked(true));
+    }
+
     public void replaceFragment(BaseFragment fragment) {
-        mFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit();
+        mFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment).commitAllowingStateLoss();
     }
 
     @Override

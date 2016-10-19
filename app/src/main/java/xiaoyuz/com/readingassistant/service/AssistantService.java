@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.view.Gravity;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -14,7 +15,10 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import xiaoyuz.com.readingassistant.EventDispatcher;
 import xiaoyuz.com.readingassistant.RxScreenshotDetector;
+import xiaoyuz.com.readingassistant.activity.MainActivity;
+import xiaoyuz.com.readingassistant.event.FloatWindowClickEvent;
 import xiaoyuz.com.readingassistant.listener.OnScreenshotListener;
 import xiaoyuz.com.readingassistant.ui.widget.DraggableFrameLayout;
 import xiaoyuz.com.readingassistant.utils.App;
@@ -98,6 +102,19 @@ public class AssistantService extends Service implements OnScreenshotListener {
         mParams.x = 300;
         mParams.y = 300;
 
+        mFloatLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mFloatLayout.clearNotifyNum();
+                Intent intent = new Intent(AssistantService.this, MainActivity.class);
+                intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                intent.setAction(Intent.ACTION_MAIN);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                App.getContext().startActivity(intent);
+                EventDispatcher.post(new FloatWindowClickEvent());
+            }
+        });
         mWindowManager.addView(mFloatLayout, mParams);
     }
 }
