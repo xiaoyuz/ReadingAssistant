@@ -11,7 +11,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.squareup.otto.Subscribe;
+
 import java.util.Date;
+import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -20,8 +23,10 @@ import rx.schedulers.Schedulers;
 import xiaoyuz.com.readingassistant.EventDispatcher;
 import xiaoyuz.com.readingassistant.RxScreenshotDetector;
 import xiaoyuz.com.readingassistant.activity.MainActivity;
+import xiaoyuz.com.readingassistant.db.SharePreferenceDB;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 import xiaoyuz.com.readingassistant.event.FloatWindowClickEvent;
+import xiaoyuz.com.readingassistant.event.NoteRecordFileEvent;
 import xiaoyuz.com.readingassistant.event.ScreenShotEvent;
 import xiaoyuz.com.readingassistant.listener.OnScreenshotListener;
 import xiaoyuz.com.readingassistant.ui.widget.DraggableFrameLayout;
@@ -33,12 +38,23 @@ import xiaoyuz.com.readingassistant.utils.App;
  */
 public class AssistantService extends Service implements OnScreenshotListener {
 
+    private class EventHandler {
+        @Subscribe
+        public void onScreenShot(ScreenShotEvent event) {
+            SharePreferenceDB.addNoteRecord2List(event.getNoteRecord());
+            EventDispatcher.post(new NoteRecordFileEvent(event.getNoteRecord(),
+                    NoteRecordFileEvent.Type.ADD));
+        }
+    }
+
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mParams;
     private DraggableFrameLayout mFloatLayout;
 
     private Observable mScreenshotObservable;
     private Subscriber<String> mScreenshotSubscriber;
+
+    private EventHandler mEventHandler;
 
     @Override
     public void onCreate() {
@@ -69,6 +85,9 @@ public class AssistantService extends Service implements OnScreenshotListener {
             }
         };
         mScreenshotObservable.subscribe(mScreenshotSubscriber);
+
+        mEventHandler = new EventHandler();
+        EventDispatcher.register(mEventHandler, EventDispatcher.Group.Main);
     }
 
     @Nullable
@@ -88,6 +107,7 @@ public class AssistantService extends Service implements OnScreenshotListener {
         super.onDestroy();
         mWindowManager.removeView(mFloatLayout);
         mScreenshotSubscriber.unsubscribe();
+        EventDispatcher.unregister(mEventHandler);
     }
 
     @Override

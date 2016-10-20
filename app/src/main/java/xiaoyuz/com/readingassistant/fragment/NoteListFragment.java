@@ -19,8 +19,7 @@ import xiaoyuz.com.readingassistant.activity.DoodleActivity;
 import xiaoyuz.com.readingassistant.base.BaseFragment;
 import xiaoyuz.com.readingassistant.db.SharePreferenceDB;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
-import xiaoyuz.com.readingassistant.event.NoteRecordFileDeleteEvent;
-import xiaoyuz.com.readingassistant.event.ScreenShotEvent;
+import xiaoyuz.com.readingassistant.event.NoteRecordFileEvent;
 import xiaoyuz.com.readingassistant.ui.adapter.NoteListAdapter;
 import xiaoyuz.com.readingassistant.utils.App;
 import xiaoyuz.com.readingassistant.utils.Constants;
@@ -32,17 +31,16 @@ public class NoteListFragment extends BaseFragment {
 
     private class EventHandler {
         @Subscribe
-        public void onScreenShot(ScreenShotEvent event) {
-            SharePreferenceDB.addNoteRecord2List(event.getNoteRecord());
-            mNoteRecordList = SharePreferenceDB.getNotesList();
-            mAdapter.setNoteRecordList(mNoteRecordList);
-            mAdapter.notifyDataSetChanged();
-        }
-        @Subscribe
-        public void NoteRecordFileDeleteEvent(NoteRecordFileDeleteEvent event) {
-            mAdapter.removeNoteRecord(event.getNoteRecord());
-            mNoteRecordList = SharePreferenceDB.getNotesList();
-            mAdapter.notifyDataSetChanged();
+        public void NoteRecordFileDeleteEvent(NoteRecordFileEvent event) {
+            if (event.getType() == NoteRecordFileEvent.Type.DELETE) {
+                mAdapter.removeNoteRecord(event.getNoteRecord());
+                mNoteRecordList = SharePreferenceDB.getNotesList();
+                mAdapter.notifyDataSetChanged();
+            } else if(event.getType() == NoteRecordFileEvent.Type.ADD) {
+                mNoteRecordList = SharePreferenceDB.getNotesList();
+                mAdapter.setNoteRecordList(mNoteRecordList);
+                mAdapter.notifyDataSetChanged();
+            }
         }
     }
 
