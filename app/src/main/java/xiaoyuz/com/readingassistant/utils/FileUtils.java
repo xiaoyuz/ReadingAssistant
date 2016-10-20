@@ -203,4 +203,9 @@ public final class FileUtils {
 
         return target.delete();
     }
+
+    public static boolean isFileExists(String path) {
+        File file = new File(path);
+        return file.exists();
+    }
 }

@@ -32,4 +32,10 @@ public class NoteRecord {
     public void setTime(String time) {
         this.time = time;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return filePath.equals(((NoteRecord) o).getFilePath())
+                && time.equals(((NoteRecord) o).getTime());
+    }
 }

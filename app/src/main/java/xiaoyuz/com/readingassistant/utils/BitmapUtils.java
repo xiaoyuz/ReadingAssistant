@@ -69,4 +69,9 @@ public class BitmapUtils {
         }
         return new BitmapDrawable(bm);
     }
+
+    public static Bitmap getBitmapFromPath(String path) {
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        return bitmap;
+    }
 }
