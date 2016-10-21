@@ -11,10 +11,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.squareup.otto.Subscribe;
-
 import java.util.Date;
-import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -27,7 +24,6 @@ import xiaoyuz.com.readingassistant.db.SharePreferenceDB;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 import xiaoyuz.com.readingassistant.event.FloatWindowClickEvent;
 import xiaoyuz.com.readingassistant.event.NoteRecordFileEvent;
-import xiaoyuz.com.readingassistant.event.ScreenShotEvent;
 import xiaoyuz.com.readingassistant.listener.OnScreenshotListener;
 import xiaoyuz.com.readingassistant.ui.widget.DraggableFrameLayout;
 import xiaoyuz.com.readingassistant.utils.App;
@@ -38,23 +34,12 @@ import xiaoyuz.com.readingassistant.utils.App;
  */
 public class AssistantService extends Service implements OnScreenshotListener {
 
-    private class EventHandler {
-        @Subscribe
-        public void onScreenShot(ScreenShotEvent event) {
-            SharePreferenceDB.addNoteRecord2List(event.getNoteRecord());
-            EventDispatcher.post(new NoteRecordFileEvent(event.getNoteRecord(),
-                    NoteRecordFileEvent.Type.ADD));
-        }
-    }
-
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mParams;
     private DraggableFrameLayout mFloatLayout;
 
     private Observable mScreenshotObservable;
     private Subscriber<String> mScreenshotSubscriber;
-
-    private EventHandler mEventHandler;
 
     @Override
     public void onCreate() {
@@ -80,14 +65,15 @@ public class AssistantService extends Service implements OnScreenshotListener {
             public void onNext(String path) {
                 mFloatLayout.increaseNotifyNum();
                 Toast.makeText(App.getContext(), path, Toast.LENGTH_SHORT).show();
-                EventDispatcher.post(new ScreenShotEvent(new NoteRecord(path,
-                        new Date().toString())));
+                NoteRecord noteRecord = new NoteRecord(path, new Date().toString());
+                SharePreferenceDB.addNoteRecord2List(noteRecord);
+                EventDispatcher.post(new NoteRecordFileEvent(noteRecord,
+                        NoteRecordFileEvent.Type.ADD));
             }
         };
         mScreenshotObservable.subscribe(mScreenshotSubscriber);
 
-        mEventHandler = new EventHandler();
-        EventDispatcher.register(mEventHandler, EventDispatcher.Group.Main);
+        SharePreferenceDB.loadNoteRecords();
     }
 
     @Nullable
@@ -107,7 +93,7 @@ public class AssistantService extends Service implements OnScreenshotListener {
         super.onDestroy();
         mWindowManager.removeView(mFloatLayout);
         mScreenshotSubscriber.unsubscribe();
-        EventDispatcher.unregister(mEventHandler);
+//        EventDispatcher.unregister(mEventHandler);
     }
 
     @Override
