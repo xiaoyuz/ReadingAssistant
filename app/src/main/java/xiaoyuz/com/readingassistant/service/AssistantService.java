@@ -20,11 +20,12 @@ import rx.schedulers.Schedulers;
 import xiaoyuz.com.readingassistant.EventDispatcher;
 import xiaoyuz.com.readingassistant.RxScreenshotDetector;
 import xiaoyuz.com.readingassistant.activity.MainActivity;
-import xiaoyuz.com.readingassistant.db.SharePreferenceDB;
+import xiaoyuz.com.readingassistant.contract.AssistantContract;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 import xiaoyuz.com.readingassistant.event.FloatWindowClickEvent;
 import xiaoyuz.com.readingassistant.event.NoteRecordFileEvent;
 import xiaoyuz.com.readingassistant.listener.OnScreenshotListener;
+import xiaoyuz.com.readingassistant.presenter.AssistantPresenter;
 import xiaoyuz.com.readingassistant.ui.widget.DraggableFrameLayout;
 import xiaoyuz.com.readingassistant.utils.App;
 
@@ -32,7 +33,8 @@ import xiaoyuz.com.readingassistant.utils.App;
  * Created by zhangxiaoyu on 16-10-12.
  * This service running in background shall handle all reading assistance request.
  */
-public class AssistantService extends Service implements OnScreenshotListener {
+public class AssistantService extends Service implements OnScreenshotListener,
+        AssistantContract.View {
 
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mParams;
@@ -41,9 +43,12 @@ public class AssistantService extends Service implements OnScreenshotListener {
     private Observable mScreenshotObservable;
     private Subscriber<String> mScreenshotSubscriber;
 
+    private AssistantContract.Presenter mPresenter;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        mPresenter = new AssistantPresenter(this);
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mParams = App.getWindowParams();
         mFloatLayout = new DraggableFrameLayout(this);
@@ -63,17 +68,16 @@ public class AssistantService extends Service implements OnScreenshotListener {
 
             @Override
             public void onNext(String path) {
-                mFloatLayout.increaseNotifyNum();
-                Toast.makeText(App.getContext(), path, Toast.LENGTH_SHORT).show();
+                increaseNotifyNum();
                 NoteRecord noteRecord = new NoteRecord(path, new Date().toString());
-                SharePreferenceDB.addNoteRecord2List(noteRecord);
+                mPresenter.addNote(noteRecord);
                 EventDispatcher.post(new NoteRecordFileEvent(noteRecord,
                         NoteRecordFileEvent.Type.ADD));
             }
         };
         mScreenshotObservable.subscribe(mScreenshotSubscriber);
 
-        SharePreferenceDB.loadNoteRecords();
+        mPresenter.loadNoteList();
     }
 
     @Nullable
@@ -91,18 +95,27 @@ public class AssistantService extends Service implements OnScreenshotListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mWindowManager.removeView(mFloatLayout);
+        removeAssistant();
         mScreenshotSubscriber.unsubscribe();
-//        EventDispatcher.unregister(mEventHandler);
     }
 
     @Override
     public void onScreenshotTaken(Uri uri) {
         Toast.makeText(this, uri.getPath(), Toast.LENGTH_SHORT).show();
+    }
 
+    @Override
+    public void setPresenter(AssistantContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public void increaseNotifyNum() {
+        mFloatLayout.increaseNotifyNum();
     }
 
     // FIXME: Fix the float window size.
+    @Override
     public void showFlowWindow() {
         mParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
         mParams.format = PixelFormat.RGBA_8888;
@@ -116,16 +129,26 @@ public class AssistantService extends Service implements OnScreenshotListener {
         mFloatLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFloatLayout.clearNotifyNum();
-                Intent intent = new Intent(AssistantService.this, MainActivity.class);
-                intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                intent.setAction(Intent.ACTION_MAIN);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                        | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                App.getContext().startActivity(intent);
+                showNoteList();
                 EventDispatcher.post(new FloatWindowClickEvent());
             }
         });
         mWindowManager.addView(mFloatLayout, mParams);
+    }
+
+    @Override
+    public void removeAssistant() {
+        mWindowManager.removeView(mFloatLayout);
+    }
+
+    @Override
+    public void showNoteList() {
+        mFloatLayout.clearNotifyNum();
+        Intent intent = new Intent(AssistantService.this, MainActivity.class);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        App.getContext().startActivity(intent);
     }
 }

@@ -18,13 +18,14 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 
 import xiaoyuz.com.readingassistant.R;
+import xiaoyuz.com.readingassistant.utils.App;
+import xiaoyuz.com.readingassistant.utils.Constants;
 
 /*
  * Modified from original in AOSP.
@@ -386,7 +387,8 @@ public class CropImageActivity extends MonitoredActivity {
                     CropUtil.getFromMediaUri(this, getContentResolver(), sourceUri),
                     CropUtil.getFromMediaUri(this, getContentResolver(), saveUri)
             );
-            setResultBitMap(croppedImage);
+            App.getACache().put(Constants.ACACHE_CROP_IMAGE_KEY, croppedImage);
+            setResult(RESULT_OK);
         }
 
         final Bitmap b = croppedImage;
@@ -415,13 +417,6 @@ public class CropImageActivity extends MonitoredActivity {
 
     public boolean isSaving() {
         return isSaving;
-    }
-
-    private void setResultBitMap(Bitmap bitMap) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitMap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
-        setResult(RESULT_OK, new Intent().putExtra("crop_image", byteArray));
     }
 
     private void setResultUri(Uri uri) {

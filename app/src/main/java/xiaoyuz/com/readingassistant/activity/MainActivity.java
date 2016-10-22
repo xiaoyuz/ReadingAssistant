@@ -2,7 +2,6 @@ package xiaoyuz.com.readingassistant.activity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -26,11 +25,15 @@ import xiaoyuz.com.readingassistant.R;
 import xiaoyuz.com.readingassistant.base.BaseActivity;
 import xiaoyuz.com.readingassistant.base.BaseFragment;
 import xiaoyuz.com.readingassistant.base.LazyInstance;
+import xiaoyuz.com.readingassistant.contract.NoteListContract;
 import xiaoyuz.com.readingassistant.cropimage.Crop;
 import xiaoyuz.com.readingassistant.event.FloatWindowClickEvent;
 import xiaoyuz.com.readingassistant.fragment.DefaultFragment;
 import xiaoyuz.com.readingassistant.fragment.NoteListFragment;
+import xiaoyuz.com.readingassistant.presenter.NoteListPresenter;
 import xiaoyuz.com.readingassistant.service.AssistantService;
+import xiaoyuz.com.readingassistant.utils.App;
+import xiaoyuz.com.readingassistant.utils.Constants;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -46,6 +49,8 @@ public class MainActivity extends BaseActivity
     private NavigationView mNavigationView;
 
     private EventHandler mEventHandler;
+
+    private NoteListContract.Presenter mNoteListPresenter;
 
     private class EventHandler {
 
@@ -162,6 +167,9 @@ public class MainActivity extends BaseActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_gallery:
+                if (mNoteListPresenter == null) {
+                    mNoteListPresenter = new NoteListPresenter(mLazyNoteListFragment.get());
+                }
                 replaceFragment(mLazyNoteListFragment.get());
                 break;
             default:
@@ -225,8 +233,7 @@ public class MainActivity extends BaseActivity
                 break;
             case RESULT_OK:
                 if (requestCode == Crop.REQUEST_CROP) {
-                    byte[] byteArray = data.getByteArrayExtra("crop_image");
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                    Bitmap bitmap = App.getACache().getAsBitmap(Constants.ACACHE_CROP_IMAGE_KEY);
                     Log.d("aaaaa", "adfasdf");
                 }
                 break;

@@ -6,5 +6,6 @@ package xiaoyuz.com.readingassistant.utils;
 public class Constants {
 
     public static final String DOODLE_IMAGE_PATH = "path";
+    public static final String ACACHE_CROP_IMAGE_KEY = "crop_image";
 
 }

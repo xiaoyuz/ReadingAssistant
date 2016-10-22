@@ -1,6 +1,5 @@
 package xiaoyuz.com.readingassistant.fragment;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,8 +17,8 @@ import java.util.List;
 import xiaoyuz.com.readingassistant.EventDispatcher;
 import xiaoyuz.com.readingassistant.R;
 import xiaoyuz.com.readingassistant.base.BaseFragment;
+import xiaoyuz.com.readingassistant.contract.NoteListContract;
 import xiaoyuz.com.readingassistant.cropimage.Crop;
-import xiaoyuz.com.readingassistant.db.SharePreferenceDB;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 import xiaoyuz.com.readingassistant.event.NoteRecordFileEvent;
 import xiaoyuz.com.readingassistant.ui.adapter.NoteListAdapter;
@@ -28,17 +27,17 @@ import xiaoyuz.com.readingassistant.utils.App;
 /**
  * Created by zhangxiaoyu on 16-10-17.
  */
-public class NoteListFragment extends BaseFragment {
+public class NoteListFragment extends BaseFragment implements NoteListContract.View {
 
     private class EventHandler {
         @Subscribe
         public void NoteRecordFileDeleteEvent(NoteRecordFileEvent event) {
             if (event.getType() == NoteRecordFileEvent.Type.DELETE) {
                 mAdapter.removeNoteRecord(event.getNoteRecord());
-                mNoteRecordList = SharePreferenceDB.getNotesList();
+                mNoteRecordList = mNoteListPresenter.getNoteList();
                 mAdapter.notifyDataSetChanged();
             } else if(event.getType() == NoteRecordFileEvent.Type.ADD) {
-                mNoteRecordList = SharePreferenceDB.getNotesList();
+                mNoteRecordList = mNoteListPresenter.getNoteList();
                 mAdapter.setNoteRecordList(mNoteRecordList);
                 mAdapter.notifyDataSetChanged();
             }
@@ -50,6 +49,8 @@ public class NoteListFragment extends BaseFragment {
     private LinearLayoutManager mLayoutManager;
     private NoteListAdapter mAdapter;
     private EventHandler mEventHandler;
+
+    private NoteListContract.Presenter mNoteListPresenter;
 
     @Override
     protected void initVariables() {
@@ -66,7 +67,7 @@ public class NoteListFragment extends BaseFragment {
         mLayoutManager = new LinearLayoutManager(App.getContext());
         mNoteListView.setLayoutManager(mLayoutManager);
         mNoteListView.setHasFixedSize(true);
-        mAdapter = new NoteListAdapter(mNoteRecordList);
+        mAdapter = new NoteListAdapter(mNoteRecordList, mNoteListPresenter);
         mAdapter.setOnItemClickListener(new NoteListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, String data) {
@@ -75,8 +76,7 @@ public class NoteListFragment extends BaseFragment {
 //                bundle.putString(Constants.DOODLE_IMAGE_PATH, data);
 //                intent.putExtras(bundle);
 //                getActivity().startActivity(intent);
-                Crop.of(Uri.fromFile(new File(data)), Uri.fromFile(new File(data + "1")))
-                        .start(getActivity());
+                showNoteCropPage(data);
             }
         });
         mNoteListView.setAdapter(mAdapter);
@@ -85,13 +85,24 @@ public class NoteListFragment extends BaseFragment {
 
     @Override
     protected void loadData() {
-        SharePreferenceDB.loadNoteRecords();
-        mNoteRecordList = SharePreferenceDB.getNotesList();
+        mNoteListPresenter.start();
+        mNoteRecordList = mNoteListPresenter.getNoteList();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         EventDispatcher.unregister(mEventHandler);
+    }
+
+    @Override
+    public void setPresenter(NoteListContract.Presenter presenter) {
+        mNoteListPresenter = presenter;
+    }
+
+    @Override
+    public void showNoteCropPage(String path) {
+        Crop.of(Uri.fromFile(new File(path)), Uri.fromFile(new File(path + "1")))
+                .start(getActivity());
     }
 }

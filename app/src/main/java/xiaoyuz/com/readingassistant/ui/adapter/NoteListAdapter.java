@@ -14,7 +14,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.List;
 
 import xiaoyuz.com.readingassistant.R;
-import xiaoyuz.com.readingassistant.db.SharePreferenceDB;
+import xiaoyuz.com.readingassistant.contract.NoteListContract;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 import xiaoyuz.com.readingassistant.utils.App;
 
@@ -43,8 +43,11 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteLi
     private List<NoteRecord> mNoteRecordList;
     private OnItemClickListener mOnItemClickListener;
 
-    public NoteListAdapter(List<NoteRecord> noteRecordList) {
+    private NoteListContract.Presenter mPresenter;
+
+    public NoteListAdapter(List<NoteRecord> noteRecordList, NoteListContract.Presenter presenter) {
         mNoteRecordList = noteRecordList;
+        mPresenter = presenter;
     }
 
     @Override
@@ -86,6 +89,6 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteLi
 
     public void removeNoteRecord(NoteRecord noteRecord) {
         mNoteRecordList.remove(noteRecord);
-        SharePreferenceDB.removeNoteRecord(noteRecord);
+        mPresenter.deleteNote(noteRecord);
     }
 }
