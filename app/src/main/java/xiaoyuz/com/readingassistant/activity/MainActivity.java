@@ -1,12 +1,15 @@
 package xiaoyuz.com.readingassistant.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,6 +26,7 @@ import xiaoyuz.com.readingassistant.R;
 import xiaoyuz.com.readingassistant.base.BaseActivity;
 import xiaoyuz.com.readingassistant.base.BaseFragment;
 import xiaoyuz.com.readingassistant.base.LazyInstance;
+import xiaoyuz.com.readingassistant.cropimage.Crop;
 import xiaoyuz.com.readingassistant.event.FloatWindowClickEvent;
 import xiaoyuz.com.readingassistant.fragment.DefaultFragment;
 import xiaoyuz.com.readingassistant.fragment.NoteListFragment;
@@ -218,6 +222,13 @@ public class MainActivity extends BaseActivity
         switch (resultCode) {
             case PERMISSION_CHECK_RESULT_CODE:
                 startService(mAssistantIntent);
+                break;
+            case RESULT_OK:
+                if (requestCode == Crop.REQUEST_CROP) {
+                    byte[] byteArray = data.getByteArrayExtra("crop_image");
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                    Log.d("aaaaa", "adfasdf");
+                }
                 break;
             default:
                 break;

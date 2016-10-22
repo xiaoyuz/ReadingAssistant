@@ -1,6 +1,7 @@
 package xiaoyuz.com.readingassistant.fragment;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,19 +11,19 @@ import android.view.ViewGroup;
 
 import com.squareup.otto.Subscribe;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import xiaoyuz.com.readingassistant.EventDispatcher;
 import xiaoyuz.com.readingassistant.R;
-import xiaoyuz.com.readingassistant.activity.DoodleActivity;
 import xiaoyuz.com.readingassistant.base.BaseFragment;
+import xiaoyuz.com.readingassistant.cropimage.Crop;
 import xiaoyuz.com.readingassistant.db.SharePreferenceDB;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 import xiaoyuz.com.readingassistant.event.NoteRecordFileEvent;
 import xiaoyuz.com.readingassistant.ui.adapter.NoteListAdapter;
 import xiaoyuz.com.readingassistant.utils.App;
-import xiaoyuz.com.readingassistant.utils.Constants;
 
 /**
  * Created by zhangxiaoyu on 16-10-17.
@@ -69,11 +70,13 @@ public class NoteListFragment extends BaseFragment {
         mAdapter.setOnItemClickListener(new NoteListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, String data) {
-                Intent intent = new Intent(getActivity(), DoodleActivity.class);
-                Bundle bundle=new Bundle();
-                bundle.putString(Constants.DOODLE_IMAGE_PATH, data);
-                intent.putExtras(bundle);
-                getActivity().startActivity(intent);
+//                Intent intent = new Intent(getActivity(), DoodleActivity.class);
+//                Bundle bundle = new Bundle();
+//                bundle.putString(Constants.DOODLE_IMAGE_PATH, data);
+//                intent.putExtras(bundle);
+//                getActivity().startActivity(intent);
+                Crop.of(Uri.fromFile(new File(data)), Uri.fromFile(new File(data + "1")))
+                        .start(getActivity());
             }
         });
         mNoteListView.setAdapter(mAdapter);

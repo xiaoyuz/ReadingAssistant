@@ -1,6 +1,7 @@
 package xiaoyuz.com.readingassistant.activity;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import xiaoyuz.com.readingassistant.R;
@@ -32,6 +33,13 @@ public class DoodleActivity extends BaseActivity {
         mDoodleView = (DoodleView) findViewById(R.id.doodle_view);
         mClearButton = (Button) findViewById(R.id.clear);
         mSaveButton = (Button) findViewById(R.id.save);
+
+        mClearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDoodleView.clear();
+            }
+        });
     }
 
     @Override

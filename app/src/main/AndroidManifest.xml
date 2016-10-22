@@ -33,6 +33,8 @@
             android:launchMode="singleTask">
         </activity>
 
+        <activity android:name="xiaoyuz.com.readingassistant.cropimage.CropImageActivity" />
+
         <service android:name=".service.AssistantService" />
     </application>
 

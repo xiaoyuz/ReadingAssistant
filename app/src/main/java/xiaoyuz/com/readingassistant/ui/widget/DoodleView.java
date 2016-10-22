@@ -51,11 +51,11 @@ public class DoodleView extends View {
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
-        canvas.drawBitmap(HandWriting(mNew1Bitmap), 0, 0,null);
+        canvas.drawBitmap(handWriting(mNew1Bitmap), 0, 0,null);
 
     }
 
-    public Bitmap HandWriting(Bitmap originalBitmap)
+    public Bitmap handWriting(Bitmap originalBitmap)
     {
         Canvas canvas = new Canvas(mIsClear ? mNew2Bitmap : originalBitmap);
         mPaint = new Paint();
@@ -76,20 +76,18 @@ public class DoodleView extends View {
     {
         mClickX = event.getX();
         mClickY = event.getY();
-        mIsMove = event.getAction() == MotionEvent.ACTION_MOVE;
-        invalidate();
-//        switch (event.getAction()) {
-//            case MotionEvent.ACTION_DOWN:
-//                mIsMove = false;
-//                invalidate();
-//                return true;
-//            case MotionEvent.ACTION_MOVE:
-//                mIsMove = true;
-//                invalidate();
-//                return true;
-//            default:
-//                break;
-//        }
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mIsMove = false;
+                invalidate();
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                mIsMove = true;
+                invalidate();
+                return true;
+            default:
+                break;
+        }
         return super.onTouchEvent(event);
     }
 
