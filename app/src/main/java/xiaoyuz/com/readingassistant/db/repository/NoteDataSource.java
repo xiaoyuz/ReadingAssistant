@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
+import rx.Observable;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 
 /**
@@ -20,7 +21,7 @@ public interface NoteDataSource {
 
     void initNoteRecords();
 
-    void getNoteList(@NonNull GetNoteListCallback getNoteListCallback);
+    Observable<List<NoteRecord>> getNoteList();
 
     void addNoteRecord(NoteRecord noteRecord);
 

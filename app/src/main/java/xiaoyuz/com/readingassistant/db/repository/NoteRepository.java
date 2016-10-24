@@ -2,6 +2,9 @@ package xiaoyuz.com.readingassistant.db.repository;
 
 import android.support.annotation.NonNull;
 
+import java.util.List;
+
+import rx.Observable;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 
 /**
@@ -33,8 +36,8 @@ public class NoteRepository implements NoteDataSource {
     }
 
     @Override
-    public void getNoteList(@NonNull GetNoteListCallback getNoteListCallback) {
-        mNoteDataSource.getNoteList(getNoteListCallback);
+    public Observable<List<NoteRecord>> getNoteList() {
+        return mNoteDataSource.getNoteList();
     }
 
     @Override

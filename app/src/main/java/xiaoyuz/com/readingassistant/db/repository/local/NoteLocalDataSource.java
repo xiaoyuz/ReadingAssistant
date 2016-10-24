@@ -1,6 +1,5 @@
 package xiaoyuz.com.readingassistant.db.repository.local;
 
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
@@ -12,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import rx.Observable;
+import rx.Subscriber;
 import xiaoyuz.com.readingassistant.db.repository.NoteDataSource;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 import xiaoyuz.com.readingassistant.utils.FileUtils;
@@ -27,16 +28,16 @@ public class NoteLocalDataSource implements NoteDataSource {
     private static List<NoteRecord> sNoteRecords;
     private static Map<String, NoteRecord> sNoteRecordMap;
 
-    private static NoteLocalDataSource sIntance;
+    private static NoteLocalDataSource sInstance;
 
     private NoteLocalDataSource() {
     }
 
     public static NoteLocalDataSource getInstance() {
-        if (sIntance == null) {
-            sIntance = new NoteLocalDataSource();
+        if (sInstance == null) {
+            sInstance = new NoteLocalDataSource();
         }
-        return sIntance;
+        return sInstance;
     }
 
     @Override
@@ -71,8 +72,13 @@ public class NoteLocalDataSource implements NoteDataSource {
     }
 
     @Override
-    public void getNoteList(@NonNull GetNoteListCallback getNoteListCallback) {
-        getNoteListCallback.onNoteListGet(sNoteRecords);
+    public Observable<List<NoteRecord>> getNoteList() {
+        return Observable.create(new Observable.OnSubscribe<List<NoteRecord>>() {
+            @Override
+            public void call(Subscriber<? super List<NoteRecord>> subscriber) {
+                subscriber.onNext(sNoteRecords);
+            }
+        });
     }
 
     @Override

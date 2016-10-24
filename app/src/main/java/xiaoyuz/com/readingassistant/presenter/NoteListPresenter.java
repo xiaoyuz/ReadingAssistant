@@ -4,8 +4,8 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
+import rx.Subscriber;
 import xiaoyuz.com.readingassistant.contract.NoteListContract;
-import xiaoyuz.com.readingassistant.db.repository.NoteDataSource;
 import xiaoyuz.com.readingassistant.db.repository.NoteRepository;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 
@@ -46,15 +46,20 @@ public class NoteListPresenter implements NoteListContract.Presenter {
 
     @Override
     public void loadNoteList() {
-        mNoteRepository.getNoteList(new NoteDataSource.GetNoteListCallback() {
+        mNoteRepository.getNoteList().subscribe(new Subscriber<List<NoteRecord>>() {
             @Override
-            public void onNoteListGet(List<NoteRecord> noteRecords) {
-                mView.showNoteList(noteRecords);
+            public void onCompleted() {
+
             }
 
             @Override
-            public void onDataNotAvailable() {
+            public void onError(Throwable e) {
 
+            }
+
+            @Override
+            public void onNext(List<NoteRecord> noteRecords) {
+                mView.showNoteList(noteRecords);
             }
         });
     }
