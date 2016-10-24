@@ -27,6 +27,8 @@ import xiaoyuz.com.readingassistant.base.BaseFragment;
 import xiaoyuz.com.readingassistant.base.LazyInstance;
 import xiaoyuz.com.readingassistant.contract.NoteListContract;
 import xiaoyuz.com.readingassistant.cropimage.Crop;
+import xiaoyuz.com.readingassistant.db.repository.NoteRepository;
+import xiaoyuz.com.readingassistant.db.repository.local.NoteLocalDataSource;
 import xiaoyuz.com.readingassistant.event.FloatWindowClickEvent;
 import xiaoyuz.com.readingassistant.fragment.DefaultFragment;
 import xiaoyuz.com.readingassistant.fragment.NoteListFragment;
@@ -168,7 +170,8 @@ public class MainActivity extends BaseActivity
         switch (id) {
             case R.id.nav_gallery:
                 if (mNoteListPresenter == null) {
-                    mNoteListPresenter = new NoteListPresenter(mLazyNoteListFragment.get());
+                    mNoteListPresenter = new NoteListPresenter(mLazyNoteListFragment.get(),
+                            NoteRepository.getInstance(NoteLocalDataSource.getInstance()));
                 }
                 replaceFragment(mLazyNoteListFragment.get());
                 break;

@@ -34,10 +34,10 @@ public class NoteListFragment extends BaseFragment implements NoteListContract.V
         public void NoteRecordFileDeleteEvent(NoteRecordFileEvent event) {
             if (event.getType() == NoteRecordFileEvent.Type.DELETE) {
                 mAdapter.removeNoteRecord(event.getNoteRecord());
-                mNoteRecordList = mNoteListPresenter.getNoteList();
+                mNoteListPresenter.loadNoteList();
                 mAdapter.notifyDataSetChanged();
             } else if(event.getType() == NoteRecordFileEvent.Type.ADD) {
-                mNoteRecordList = mNoteListPresenter.getNoteList();
+                mNoteListPresenter.loadNoteList();
                 mAdapter.setNoteRecordList(mNoteRecordList);
                 mAdapter.notifyDataSetChanged();
             }
@@ -57,6 +57,8 @@ public class NoteListFragment extends BaseFragment implements NoteListContract.V
         mNoteRecordList = new ArrayList<>();
         mEventHandler = new EventHandler();
         EventDispatcher.register(mEventHandler, EventDispatcher.Group.Main);
+        mNoteRecordList = new ArrayList<>();
+        mAdapter = new NoteListAdapter(mNoteRecordList, mNoteListPresenter);
     }
 
     @Override
@@ -67,7 +69,7 @@ public class NoteListFragment extends BaseFragment implements NoteListContract.V
         mLayoutManager = new LinearLayoutManager(App.getContext());
         mNoteListView.setLayoutManager(mLayoutManager);
         mNoteListView.setHasFixedSize(true);
-        mAdapter = new NoteListAdapter(mNoteRecordList, mNoteListPresenter);
+//        mAdapter = new NoteListAdapter(mNoteRecordList, mNoteListPresenter);
         mAdapter.setOnItemClickListener(new NoteListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, String data) {
@@ -86,7 +88,14 @@ public class NoteListFragment extends BaseFragment implements NoteListContract.V
     @Override
     protected void loadData() {
         mNoteListPresenter.start();
-        mNoteRecordList = mNoteListPresenter.getNoteList();
+        mNoteListPresenter.loadNoteList();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mAdapter.setNoteRecordList(mNoteRecordList);
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -98,6 +107,13 @@ public class NoteListFragment extends BaseFragment implements NoteListContract.V
     @Override
     public void setPresenter(NoteListContract.Presenter presenter) {
         mNoteListPresenter = presenter;
+    }
+
+    @Override
+    public void showNoteList(List<NoteRecord> noteRecords) {
+        mNoteListPresenter.start();
+        mNoteRecordList = noteRecords;
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

@@ -1,5 +1,6 @@
-package xiaoyuz.com.readingassistant.db;
+package xiaoyuz.com.readingassistant.db.repository.local;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
@@ -11,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import xiaoyuz.com.readingassistant.db.repository.NoteDataSource;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 import xiaoyuz.com.readingassistant.utils.FileUtils;
 import xiaoyuz.com.readingassistant.utils.SharePreferenceUtils;
@@ -18,14 +20,27 @@ import xiaoyuz.com.readingassistant.utils.SharePreferenceUtils;
 /**
  * Created by zhangxiaoyu on 16-10-19.
  */
-public class SharePreferenceDB {
+public class NoteLocalDataSource implements NoteDataSource {
 
     private static final String NOTES_LIST_DB_KEY = "notes_list";
 
     private static List<NoteRecord> sNoteRecords;
     private static Map<String, NoteRecord> sNoteRecordMap;
 
-    public static void loadNoteRecords() {
+    private static NoteLocalDataSource sIntance;
+
+    private NoteLocalDataSource() {
+    }
+
+    public static NoteLocalDataSource getInstance() {
+        if (sIntance == null) {
+            sIntance = new NoteLocalDataSource();
+        }
+        return sIntance;
+    }
+
+    @Override
+    public void initNoteRecords() {
         String listStr = SharePreferenceUtils.getString(NOTES_LIST_DB_KEY, null);
         if (TextUtils.isEmpty(listStr)) {
             sNoteRecords = new ArrayList<>();
@@ -48,24 +63,27 @@ public class SharePreferenceDB {
         }
     }
 
-    public static List<NoteRecord> getNotesList() {
-        return sNoteRecords;
-    }
-
-    public static void addNoteRecord2List(NoteRecord noteRecord) {
+    @Override
+    public void addNoteRecord(NoteRecord noteRecord) {
         sNoteRecords.add(noteRecord);
         syncNoteRecordsDB();
         sNoteRecordMap.put(noteRecord.getFilePath(), noteRecord);
     }
 
-    public static void removeNoteRecord(int index) {
-        NoteRecord noteRecord = sNoteRecords.remove(index);
+    @Override
+    public void getNoteList(@NonNull GetNoteListCallback getNoteListCallback) {
+        getNoteListCallback.onNoteListGet(sNoteRecords);
+    }
+
+    @Override
+    public void removeNoteRecord(NoteRecord noteRecord) {
+        sNoteRecords.remove(noteRecord);
         syncNoteRecordsDB();
         sNoteRecordMap.remove(noteRecord.getFilePath());
     }
 
-    public static void removeNoteRecord(NoteRecord noteRecord) {
-        sNoteRecords.remove(noteRecord);
+    public static void removeNoteRecord(int index) {
+        NoteRecord noteRecord = sNoteRecords.remove(index);
         syncNoteRecordsDB();
         sNoteRecordMap.remove(noteRecord.getFilePath());
     }

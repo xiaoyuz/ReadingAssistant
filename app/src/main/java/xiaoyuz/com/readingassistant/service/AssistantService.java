@@ -21,6 +21,8 @@ import xiaoyuz.com.readingassistant.EventDispatcher;
 import xiaoyuz.com.readingassistant.RxScreenshotDetector;
 import xiaoyuz.com.readingassistant.activity.MainActivity;
 import xiaoyuz.com.readingassistant.contract.AssistantContract;
+import xiaoyuz.com.readingassistant.db.repository.NoteRepository;
+import xiaoyuz.com.readingassistant.db.repository.local.NoteLocalDataSource;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 import xiaoyuz.com.readingassistant.event.FloatWindowClickEvent;
 import xiaoyuz.com.readingassistant.event.NoteRecordFileEvent;
@@ -48,7 +50,8 @@ public class AssistantService extends Service implements OnScreenshotListener,
     @Override
     public void onCreate() {
         super.onCreate();
-        mPresenter = new AssistantPresenter(this);
+        mPresenter = new AssistantPresenter(this,
+                NoteRepository.getInstance(NoteLocalDataSource.getInstance()));
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mParams = App.getWindowParams();
         mFloatLayout = new DraggableFrameLayout(this);

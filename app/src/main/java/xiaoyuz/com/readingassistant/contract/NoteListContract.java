@@ -13,19 +13,21 @@ public interface NoteListContract {
 
     interface View extends BaseView<Presenter> {
 
+        void showNoteList(List<NoteRecord> noteRecords);
+
         void showNoteCropPage(String path);
 
     }
 
     interface Presenter extends BasePresenter {
 
-        void loadNoteList();
+        void initNoteList();
 
         void addNote(NoteRecord noteRecord);
 
         void deleteNote(NoteRecord noteRecord);
 
-        List<NoteRecord> getNoteList();
+        void loadNoteList();
 
     }
 

@@ -3,7 +3,7 @@ package xiaoyuz.com.readingassistant.presenter;
 import android.support.annotation.NonNull;
 
 import xiaoyuz.com.readingassistant.contract.AssistantContract;
-import xiaoyuz.com.readingassistant.db.SharePreferenceDB;
+import xiaoyuz.com.readingassistant.db.repository.NoteRepository;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 
 /**
@@ -12,9 +12,12 @@ import xiaoyuz.com.readingassistant.entity.NoteRecord;
 public class AssistantPresenter implements AssistantContract.Presenter {
 
     private AssistantContract.View mView;
+    private NoteRepository mNoteRepository;
 
-    public AssistantPresenter(@NonNull AssistantContract.View view) {
+    public AssistantPresenter(@NonNull AssistantContract.View view,
+                              @NonNull NoteRepository noteRepository) {
         mView = view;
+        mNoteRepository = noteRepository;
         view.setPresenter(this);
     }
 
@@ -25,11 +28,11 @@ public class AssistantPresenter implements AssistantContract.Presenter {
 
     @Override
     public void addNote(NoteRecord noteRecord) {
-        SharePreferenceDB.addNoteRecord2List(noteRecord);
+        mNoteRepository.addNoteRecord(noteRecord);
     }
 
     @Override
     public void loadNoteList() {
-        SharePreferenceDB.loadNoteRecords();
+        mNoteRepository.initNoteRecords();
     }
 }

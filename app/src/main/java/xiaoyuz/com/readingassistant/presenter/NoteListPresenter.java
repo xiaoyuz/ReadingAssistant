@@ -5,7 +5,8 @@ import android.support.annotation.NonNull;
 import java.util.List;
 
 import xiaoyuz.com.readingassistant.contract.NoteListContract;
-import xiaoyuz.com.readingassistant.db.SharePreferenceDB;
+import xiaoyuz.com.readingassistant.db.repository.NoteDataSource;
+import xiaoyuz.com.readingassistant.db.repository.NoteRepository;
 import xiaoyuz.com.readingassistant.entity.NoteRecord;
 
 /**
@@ -14,35 +15,48 @@ import xiaoyuz.com.readingassistant.entity.NoteRecord;
 public class NoteListPresenter implements NoteListContract.Presenter {
 
     private NoteListContract.View mView;
+    private NoteRepository mNoteRepository;
 
-    public NoteListPresenter(@NonNull NoteListContract.View view) {
+    public NoteListPresenter(@NonNull NoteListContract.View view,
+                             @NonNull NoteRepository noteRepository) {
         mView = view;
+        mNoteRepository = noteRepository;
         mView.setPresenter(this);
     }
 
     @Override
     public void start() {
-        loadNoteList();
+        initNoteList();
     }
 
     @Override
-    public void loadNoteList() {
-        SharePreferenceDB.loadNoteRecords();
+    public void initNoteList() {
+        mNoteRepository.initNoteRecords();
     }
 
     @Override
     public void addNote(NoteRecord noteRecord) {
-        SharePreferenceDB.addNoteRecord2List(noteRecord);
+        mNoteRepository.addNoteRecord(noteRecord);
     }
 
     @Override
     public void deleteNote(NoteRecord noteRecord) {
-        SharePreferenceDB.removeNoteRecord(noteRecord);
+        mNoteRepository.removeNoteRecord(noteRecord);
     }
 
     @Override
-    public List<NoteRecord> getNoteList() {
-        return SharePreferenceDB.getNotesList();
+    public void loadNoteList() {
+        mNoteRepository.getNoteList(new NoteDataSource.GetNoteListCallback() {
+            @Override
+            public void onNoteListGet(List<NoteRecord> noteRecords) {
+                mView.showNoteList(noteRecords);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+
+            }
+        });
     }
 
 }
