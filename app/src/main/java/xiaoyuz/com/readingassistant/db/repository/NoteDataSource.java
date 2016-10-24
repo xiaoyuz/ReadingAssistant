@@ -1,7 +1,5 @@
 package xiaoyuz.com.readingassistant.db.repository;
 
-import android.support.annotation.NonNull;
-
 import java.util.List;
 
 import rx.Observable;
